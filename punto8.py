@@ -20,7 +20,7 @@ def query_cluster_stars(cluster_coords, search_radius):
     return job.get_results()
 
 clusters = {
-    "M67": SkyCoord(ra=132.825, dec=11.814722, unit=(u.deg, u.deg), frame='icrs'),
+    
     "NGC 188": SkyCoord(ra=11.806667, dec=85.255278, unit=(u.deg, u.deg), frame='icrs'),
     "Berkeley 39": SkyCoord(ra=116.68750, dec=41.637222, unit=(u.deg, u.deg), frame='icrs')
 }
@@ -117,8 +117,8 @@ def optimize_dbscan(data_scaled):
     best_params = None
     best_score = -1
     
-    for eps in np.arange(0.3, 1.0, 0.1):
-        for min_samples in range(5, 15):
+    for eps in np.arange(0.03, 1.0, 0.1):
+        for min_samples in range(3, 15):
             model = DBSCAN(eps=eps, min_samples=min_samples)
             labels = model.fit_predict(data_scaled)
             if len(np.unique(labels)) > 1:
@@ -133,7 +133,7 @@ def optimize_hdbscan(data_scaled):
     best_min_samples = None
     best_score = -1
     
-    for min_samples in range(5, 15):
+    for min_samples in range(3, 15):
         model = HDBSCAN(min_samples=min_samples)
         labels = model.fit_predict(data_scaled)
         if len(np.unique(labels)) > 1:
@@ -217,6 +217,12 @@ def main():
         plot_ra_dec(results, dbscan_mask, f"{name}_DBSCAN")
         plot_pm(results, dbscan_mask, f"{name}_DBSCAN")
         plot_cmd(results, dbscan_mask, f"{name}_DBSCAN")
+
+         # Plotear resultados usando los mejores parámetros para HDBSCAN
+        hdbscan_mask = apply_clustering(results, algorithm='hdbscan', min_samples=best_min_samples_hdbscan)
+        plot_ra_dec(results, hdbscan_mask, f"{name}_HDBSCAN")
+        plot_pm(results, hdbscan_mask, f"{name}_HDBSCAN")
+        plot_cmd(results, hdbscan_mask, f"{name}_HDBSCAN")
 
 if __name__ == '__main__':
     main()

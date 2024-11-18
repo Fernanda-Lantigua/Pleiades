@@ -69,8 +69,8 @@ def optimize_kmeans(data_scaled):
 
 def optimize_dbscan(data_scaled):
     scores = []
-    for eps in np.arange(0.3, 1.0, 0.1):
-        for min_samples in range(5, 15):
+    for eps in np.arange(0.03, 1.0, 0.1):
+        for min_samples in range(3, 15):
             model = DBSCAN(eps=eps, min_samples=min_samples)
             labels = model.fit_predict(data_scaled)
             if len(np.unique(labels)) > 1:
@@ -117,7 +117,7 @@ def plot_optimization_scores_3d(scores, algorithm_name):
 
 def optimize_hdbscan(data_scaled):
     scores = []
-    for min_samples in range(5, 15):
+    for min_samples in range(3, 15):
         model = HDBSCAN(min_samples=min_samples)
         labels = model.fit_predict(data_scaled)
         if len(np.unique(labels)) > 1:
@@ -140,11 +140,12 @@ def plot_optimization_scores(scores, algorithm_name, param_label):
     plt.close()
 
 # Figure 14-style histogram
-def plot_membership_histogram(results, dbscan_mask, hdbscan_mask, name):
+def plot_membership_histogram(results, dbscan_mask, hdbscan_mask, kmeans_mask, name):
     plt.figure(figsize=(10, 6))
     plt.hist(results['parallax'], bins=30, color='lightgray', alpha=0.5, label='All Gaia Data')
     plt.hist(results['parallax'][dbscan_mask], bins=30, color='blue', alpha=0.5, label='DBSCAN Members')
     plt.hist(results['parallax'][hdbscan_mask], bins=30, color='orange', alpha=0.5, label='HDBSCAN Members')
+    plt.hist(results['parallax'][kmeans_mask], bins=30, color='green', alpha=0.5, label='K-means Members')
     plt.xlabel('Parallax (mas)')
     plt.ylabel('Frequency')
     plt.title(f'Membership Histogram for {name}')
@@ -173,7 +174,7 @@ def main():
         dbscan_mask = apply_clustering(results, 'dbscan_parallax_pm', eps=best_dbscan_params[0], min_samples=best_dbscan_params[1])
         hdbscan_mask = apply_clustering(results, 'hdbscan', min_samples=best_min_samples_hdbscan)
 
-        plot_membership_histogram(results, dbscan_mask, hdbscan_mask, name)
+        plot_membership_histogram(results, dbscan_mask, hdbscan_mask, kmeans_mask, name)
 
 if __name__ == '__main__':
     main()
